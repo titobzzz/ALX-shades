@@ -1,0 +1,30 @@
+{
+  "expo": {
+    "name": "BalloApp",
+    "slug": "BalloApp",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/kite.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/images/kite.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#000000"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/kite.png",
+        "backgroundColor": "#000000"
+      }
+    },
+    "web": {
+      "favicon": "./assets/images/kite.png"
+    }
+  }
+}
