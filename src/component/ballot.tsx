@@ -26,7 +26,9 @@ const Ballot: React.FC<TweetProps> = ({ avatar,  handle, username, content, like
       </View>
       <View style={styles.contentContainer} >
         <View style={styles.actionSuperConstainer}>
-           <View style={styles.actionsContainer}>
+           <View style={styles.actionsContainer}>  
+            <View style={styles.pseudo1}></View>
+              <View style={styles.pseudo1cover}></View>         
         <TouchableOpacity style={styles.actionButton}>
           <Icon name="repeat" size={20} color="white" />
           <Text style={styles.actionText}>{retweets}</Text>
@@ -35,9 +37,11 @@ const Ballot: React.FC<TweetProps> = ({ avatar,  handle, username, content, like
           <Icon name="heart" size={20} color="white" />
           <Text style={styles.actionText}>{likes}</Text>
         </TouchableOpacity>
+        <View style={styles.pseudo2}></View>
+        <View style={styles.pseudo2cover}></View>    
           </View>       
         </View>     
-          <View>
+          <View style={styles.contentsubcontainer}>
             <Text style={styles.content}>{content}</Text>  
           <TouchableOpacity style={styles.commentButton}>
           <Text style={styles.commentText}>Comment</Text>
@@ -63,8 +67,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   avatar: {
-    width: 35,
-    height: 35,
+    width: 39,
+    height: 39,
     borderRadius: 25,
     marginHorizontal:10,
     marginVertical:15,
@@ -72,7 +76,7 @@ const styles = StyleSheet.create({
   },
   username: {
     ...fontStyles.bold,
-    fontSize: 16,
+    fontSize: 17,
     color:"white",
     
   },
@@ -84,10 +88,11 @@ const styles = StyleSheet.create({
   contentContainer:{
     display:'flex',
     flexDirection: 'row',
-    marginTop:10
+    marginTop:5,
+    position: 'relative',
   },
   content: {
-    marginVertical:10,
+        marginVertical:10,
     flexDirection: 'row',
     marginTop:10,
     flexWrap: 'wrap',
@@ -98,7 +103,10 @@ const styles = StyleSheet.create({
     marginLeft: 10,
     color:"white",
     ...fontStyles.meduimFont
-
+  },
+  contentsubcontainer:{
+    position: 'relative',
+    width: '80%',
   },
   commentButton:{
     alignItems:'stretch',
@@ -118,10 +126,46 @@ const styles = StyleSheet.create({
   },
   subContainer:{
     backgroundColor:'#07EEC4',
-    borderRadius:10,
+    borderRadius:15,
   },
   actionSuperConstainer:{
-  backgroundColor:'black'
+  backgroundColor:'black',
+  borderTopRightRadius:10,
+  paddingHorizontal:10,
+  },
+  pseudo1:{
+    position: 'absolute',
+    left: -10,
+    top: -25,
+    backgroundColor: 'black',
+    width:20,
+    height:25,    
+  },
+  pseudo1cover:{
+    position: 'absolute',
+    left: -10.26,
+    top: -29.8,
+    backgroundColor:'#07EEC4',
+    width:24,
+    height:20,  
+    borderBottomLeftRadius:37,
+  },
+  pseudo2:{
+    position: 'absolute',
+    right: -30,
+    bottom: -10.26,
+    backgroundColor: 'black',
+    width:20,
+    height:25,    
+  },
+  pseudo2cover:{
+    position: 'absolute',
+    right: -34,
+    bottom: -10.24,
+    backgroundColor:'#07EEC4',
+    width:24,
+    height:25,  
+    borderBottomLeftRadius:20,
   },
   actionsContainer: {
     justifyContent: 'space-between',
