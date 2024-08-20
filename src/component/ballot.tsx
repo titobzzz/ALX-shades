@@ -22,7 +22,7 @@ const Ballot: React.FC<TweetProps> = ({ avatar,  handle, username, content, like
         <View>
            <Text style={styles.username}>{username}</Text>
            <Text style={styles.handle}>{handle}</Text>
-        </View>       
+        </View>     
       </View>
       <View style={styles.contentContainer} >
         <View style={styles.actionSuperConstainer}>

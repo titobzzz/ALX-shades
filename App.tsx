@@ -1,10 +1,16 @@
 import { StyleSheet, Text, View , StatusBar} from 'react-native';
+//3rd party
 import { useFonts } from 'expo-font';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {NavigationContainer} from '@react-navigation/native';
+//pages
 import { LoginPage } from './src/pages/login';
 import { RegisterPage } from './src/pages/register';
 import {HomePage} from './src/pages/Home'
-import {NavigationContainer} from '@react-navigation/native';
+import {CreatePostPage} from './src/pages/createpost'
+// import {VideoCameraScreen} from './src/pages/videoscreen'
+
+//utils
 import {AuthContextProvider}  from "./src/utils/authContext"
 
 
@@ -35,6 +41,8 @@ export default function App() {
             <Stack.Screen  name="Home" options={{headerShown:false}} component={HomePage} />
             {/* <Stack.Screen name="Login" options={{headerShown:false}} component={LoginPage} />
         <Stack.Screen name="Register" options={{headerShown:false}} component={RegisterPage} /> */}
+            <Stack.Screen  name="CreatePost" options={{headerShown:false}} component={CreatePostPage} />
+            {/* <Stack.Screen name="VideoCamera" component={VideoCameraScreen} /> */}
       </Stack.Navigator>
   </NavigationContainer>
    </View>

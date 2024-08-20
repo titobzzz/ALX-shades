@@ -1,12 +1,20 @@
-import { View, Text,TextInput, Image, TouchableOpacity } from "react-native"
+import { View, Text,TextInput, Image, StyleSheet, TouchableOpacity } from "react-native"
 import {fontStyles } from "../styles/fontstyle"
 import {input} from "../styles/inputstyle"
 import lock from "../../assets/images/unlock.png"
 import Navbar from "../component/navbar"
 import Ballot from "../component/ballot"
+import { useNavigation } from '@react-navigation/native';
 
 
-export function HomePage({navigation}:any){
+export function HomePage(){
+
+  const navigation = useNavigation();
+  
+    const handlePress = () => {
+      navigation.navigate('CreatePost');
+    };
+  
   return(
     <View style={{     
       flex:1,
@@ -25,6 +33,32 @@ export function HomePage({navigation}:any){
         comments={3}
       />
               </View>
+              <TouchableOpacity style={styles.makepost} onPress={handlePress} >
+                 <Image source={require('../../assets/images/newpost.png')}  style={styles.newpost}/>
+              </TouchableOpacity>
+             
             
 </View>
  ) }
+
+ const styles = StyleSheet.create({
+  makepost:{
+    position: 'absolute',
+    backgroundColor: 'aqua',
+    borderRadius: 100,
+    width: 60,
+    height: 60,
+    right: 20,
+    bottom: 20,
+    display:'flex',
+    alignItems: 'center',
+    justifyContent: 'center'
+
+    },
+    newpost:{
+      width: 30,
+      height: 30,
+    }
+        
+
+ })
