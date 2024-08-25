@@ -1,3 +1,4 @@
+import React from 'react';
 import { StyleSheet, Text, View , StatusBar} from 'react-native';
 //3rd party
 import { useFonts } from 'expo-font';

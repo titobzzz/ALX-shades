@@ -1,11 +1,11 @@
+import React from "react";
 import { View, Text,TextInput, Image, StyleSheet, TouchableOpacity } from "react-native"
 import {fontStyles } from "../styles/fontstyle"
 import {input} from "../styles/inputstyle"
 import lock from "../../assets/images/unlock.png"
-import Navbar from "../component/navbar"
+import Header from "../component/Header"
 import Ballot from "../component/ballot"
 import { useNavigation } from '@react-navigation/native';
-
 
 export function HomePage(){
 
@@ -21,7 +21,7 @@ export function HomePage(){
       backgroundColor:'black',
       paddingTop:10 ,   
 }}>
-  <Navbar/>
+  <Header/>
             <View>
           <Ballot
         avatar={require('../../assets/images/git.jpg')}

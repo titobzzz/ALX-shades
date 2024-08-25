@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Text,TextInput, Image, TouchableOpacity,ActivityIndicator,SafeAreaView, Alert } from "react-native"
 import {fontStyles } from "../styles/fontstyle"
 import {input} from "../styles/inputstyle"

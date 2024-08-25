@@ -1,11 +1,17 @@
+import React from "react"
 import { View, Text,TextInput, Image, StyleSheet, TouchableOpacity, ImageBackground } from "react-native"
 import {fontStyles } from "../styles/fontstyle"
 import {input} from "../styles/inputstyle"
 import lock from "../../assets/images/unlock.png"
 import { Dimensions } from 'react-native';
 import { useState } from "react";
+import * as FileSystem from 'expo-file-system'
+import { fontStyles as font } from "../styles/fontstyle"
 
-import * as ImagePicker from 'expo-image-picker'
+
+import * as ImagePicker   from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
+
 
 
 const screenHeight = Dimensions.get('window').height;
@@ -14,84 +20,150 @@ export function CreatePostPage({navigation}:any){
 
     const [imageArray, setImageArray] = useState<any| undefined>([]) 
     const [mode, setMode] = useState<string>('')
+    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
 
-    const uploadImage = async (mode:string) => {
-        let result:any
-            try{
+    const uploadImage = async (mode: string) => {
+      let result: any;
+      try {
+          if (mode === 'gallery') {
+              await ImagePicker.requestMediaLibraryPermissionsAsync();
+              result = await ImagePicker.launchImageLibraryAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.All, // This allows both images and videos
+                  allowsMultipleSelection: true,
+              });
+          } else if (mode === 'camera') {
+              await ImagePicker.requestCameraPermissionsAsync();
+              result = await ImagePicker.launchCameraAsync({
+                  mediaTypes: ImagePicker.MediaTypeOptions.Images, // This allowsimages 
+                  allowsEditing: true,
+                  quality: 1,
+              });
+            }
+              else if (mode === 'video') {
+                await ImagePicker.requestCameraPermissionsAsync();
+                result = await ImagePicker.launchCameraAsync({
+                    mediaTypes: ImagePicker.MediaTypeOptions.Videos, // This allowsvideos
+                    allowsEditing: true,
+                    quality: 1,
+                });
 
-                if(mode === 'gallery'){
-                    await ImagePicker.requestMediaLibraryPermissionsAsync()
-                    result = await ImagePicker.launchImageLibraryAsync({
-                        mediaTypes: ImagePicker.MediaTypeOptions.Images,
-                        allowsEditing:true,
-                        aspect:[1, 1],
-                    })
-                }else if(mode === 'camera'){
-                    await ImagePicker.requestCameraPermissionsAsync()
-                 result = await ImagePicker.launchCameraAsync({
-                    cameraType:ImagePicker.CameraType.back,
-                    allowsEditing:true,
-                    aspect:[1, 1],
-                    quality:1
-                })
-                }
-                
-                if(!result.canceled) {
-               setImageArray((prevImageArray:any) => [
-                    ...prevImageArray,
-                    result.assets[0]
-                  ]);
-                }
-                await saveImage(imageArray) 
-                }catch(error:any){
-                    alert("Error uploading image: " + error.message)
-                }}   
-            const saveImage = async (image:any) => {
-                try{
-                    if(imageArray.length === 0 || imageArray.length < 4){
-                         setImageArray(image)
-                    }else if(imageArray.length >= 4){
-                        throw Error("only four media are allowed")
-                    }                       
-            }catch(error:any){
-                alert("Error uploading image: " + error.message)
-            }}
+          }
+  
+          if (!result.canceled && result.assets) {
+              const newMedia = await Promise.all(
+                  result.assets.map(async (element: any) => {
+                      const uri = element.uri;
+  
+                      if (uri.startsWith('content://')) {
+                          const fileInfo = await FileSystem.getInfoAsync(uri);
+                          return { uri: fileInfo.uri }; 
+                      } else {
+                          return { uri }; 
+                      }
+                  })
+              );
+  
+              if (imageArray.length + newMedia.length <= 4) {
+                  setImageArray((prevImageArray: any) => [...prevImageArray, ...newMedia]);
+              } else {
+                  throw Error("Only four media are allowed");
+              }
+          }
+      } catch (error: any) {
+          alert("Error uploading media: " + error.message);
+      }
+      };
+
+      const handleImagePress = async (index: number, imageUrl: string) => {
+        try {
+          const manipResult = await ImageManipulator.manipulateAsync(
+            imageUrl,
+            [], 
+            { format: ImageManipulator.SaveFormat.PNG }
+          );
+      
+          const pickerResult = await ImagePicker.launchImageLibraryAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            quality: 1,
+          });
+      
+          if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
+            const editedImage = { uri: pickerResult.assets[0].uri };
+            setImageArray((prevImages: any[]) =>
+              prevImages.map((img, imgIndex) => (imgIndex === index ? editedImage : img))
+            );
+          }
+        } catch (error) {
+          console.log('Error editing image:', error);
+        }
+      };
+      //to delete the pictures 
+      const deleteImage = (index: number) => {
+        const newImages = imageArray.filter((_:any, imgIndex:number) => imgIndex !== index);
+        setImageArray(newImages);
+      };
 
   return(
     <View style={{     
         flex:1,
         backgroundColor:'black',
+        flexDirection: 'column',
         paddingTop:10 ,   
   }}>
-    <View style={styles.inputContainer}>
-        <View >
+    <View style={styles.inputContainer}>    
                 <TextInput
-                    //   style={input.input}
+                    style={styles.input}
                     placeholder="What's happening?"
                     multiline={true}
                     numberOfLines={4}
                 />
-                    <View> 
-              {imageArray.map((image:any) =>
+                    <View 
+                    style={{
+                        display: 'flex',
+                        gap: 4,
+                        flexDirection: 'column',
+                        justifyContent: 'center',
+                        paddingHorizontal: 10,
+                        marginBottom: 10,
+                        marginLeft:"auto",
+                        bottom:0,
+                       flexWrap: 'wrap'
+                    }}
+                    > 
+              {imageArray.map((image:any, index:number) =>
                 {
-                    console.log(`${image}`)
-                    console.log(`${image.assetId}`)
+                  
                     return (
-                        <ImageBackground
-                        key={image.filename}
+                      <View key={index} style={{ position: 'relative'}}>
+                        <TouchableOpacity 
+                        onPress={() => handleImagePress(index, image.uri)}> 
+                          <Image
+                        key={index}
                         style={{
-                            width: screenHeight*0.2, 
+                            width: screenHeight*0.15, 
+                            borderRadius:15,
                             borderWidth:0.12,
                             borderColor:'black',
-                            height:screenHeight*0.12, 
-                            marginHorizontal:10}}
-                        source={image}
-                        />
+                            height:screenHeight*0.13, 
+                            marginHorizontal:10,
+                            opacity:0.72
+                          }}
+                        source={{uri : image.uri}}
+                        /></TouchableOpacity>
+                       
+                        
+                        <TouchableOpacity
+                        style={styles.deleteIcon}
+                        onPress={() => deleteImage(index)}
+                      >
+                        <Text style={styles.deleteText}>X</Text>
+                      </TouchableOpacity>
+                        </View>
+                        
                     )
                 })
             }
-                    </View>
-
         </View>
  
 
@@ -107,7 +179,8 @@ export function CreatePostPage({navigation}:any){
                                 <Image   style={{width: 27, height: 27}}  source={require('../../assets/images/camera.png')} />
                     </TouchableOpacity>
                         
-                    <TouchableOpacity  >
+                    <TouchableOpacity 
+                     onPress={()=>uploadImage("video")} >
                                 <Image   style={{width: 27, height: 27}}  source={require('../../assets/images/video.png')} />
                     </TouchableOpacity>
         
@@ -126,11 +199,26 @@ export function CreatePostPage({navigation}:any){
 
 const styles = StyleSheet.create({
     inputContainer:{
+      position:"relative",
+      display:"flex",
+      flexDirection:"row",
         backgroundColor:'yellow',
-        height: screenHeight * 0.64,
+        height: screenHeight * 0.69,
         borderBottomLeftRadius:25,
         borderBottomRightRadius:25,
     },
+    input: {
+        borderColor: 'gray',
+        padding: 10,
+        width: '65%',
+        textAlignVertical: 'top', 
+        borderRadius: 5,
+        display:'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+         ...font.bold,
+         fontSize:16
+      },
     publish:{
         position: 'absolute',
         backgroundColor: 'aqua',
@@ -139,8 +227,8 @@ const styles = StyleSheet.create({
         borderWidth:1.5,        
         width: 60,
         height: 60,
-        right: 20,
-        bottom: 230,
+        right: 40,
+        bottom: 190,
         display:'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -160,5 +248,22 @@ const styles = StyleSheet.create({
         borderRadius:15,
         borderColor:'blackColor',
         borderWidth:1.5,  
-    }
+    },
+      deleteIcon: {
+        position: 'absolute',
+        top: -4,
+        right: -3,
+        backgroundColor: 'red',
+        borderRadius: 15,
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      deleteText: {
+        ...font.green,
+        ...font.bold,
+        color: 'white',
+        fontSize: 19,
+      }
 })

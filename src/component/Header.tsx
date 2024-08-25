@@ -1,8 +1,9 @@
+import React from "react";
 import { View, Text,TextInput, Image, TouchableOpacity } from "react-native"
 import { imageStyles } from "../styles/image-style"
 import { fontStyles as font } from "../styles/fontstyle"
 
-export default  function(){
+export default  function Header(){
     return(
         <View   style={{
        

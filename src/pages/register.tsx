@@ -1,3 +1,4 @@
+import React from "react";
 import { View, Alert, Text,TextInput, Image, Keyboard, TouchableOpacity } from "react-native"
 import {fontStyles } from "../styles/fontstyle"
 import {input} from "../styles/inputstyle"
