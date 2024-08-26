@@ -4,6 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { jwtDecode } from 'jwt-decode';
 import "core-js/stable/atob"
 
+
 interface AuthContextProviderProps {
     children: ReactNode; 
   }
@@ -13,7 +14,11 @@ interface AuthContextProviderProps {
   }
 
 
+
 const AuthContext = createContext<any | undefined>(undefined)
+const DEBUG = true
+const apiURL = DEBUG ? process.env.DEBUG_API_HOST : process.env.DEPLOYED_API_HOST
+
 
  export const AuthContextProvider:React.FC<AuthContextProviderProps> = ({children}) =>{
     
@@ -36,7 +41,7 @@ const AuthContext = createContext<any | undefined>(undefined)
       }, []);
 
     const loginApiConnect = async(payload:LoginPayloadtype) =>{
-       const token = await axios.post("https://ballot-api.onrender.com/accounts/auth/login/" , payload,
+       const token = await axios.post(`${apiURL}/accounts/auth/login/` , payload,
         {
             withCredentials:true
         })
@@ -44,11 +49,12 @@ const AuthContext = createContext<any | undefined>(undefined)
         settokens(token)
         const getUser = jwtDecode<any>(accesstoken)
         let  userid = getUser.user_id         
-        const apiresponse =  await axios.get(`https://ballot-api.onrender.com/accounts/user/${userid}/`, {
+        const apiresponse =  await axios.get(`${apiURL}/accounts/user/${userid}/`, {
             withCredentials:true
         })
         setUser(apiresponse.data)
-        await AsyncStorage.setItem("userProfile",JSON.stringify(apiresponse.data))          
+        await AsyncStorage.setItem("userProfile",JSON.stringify(apiresponse.data))    
+        await AsyncStorage.setItem("access_token",JSON.stringify(token))          
     }
     return(
         <AuthContext.Provider value={{loginApiConnect, user}}>

@@ -1,14 +1,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage"
 import axios from "axios"
 
-const jwtRefreshInterceptor = axios.create({})
+const DEBUG = true
+const apiURL = DEBUG ? process.env.DEBUG_API_HOST : process.env.DEPLOYED_API_HOST
 
+//Create an axios interceptor that can be used all over the app
+
+const jwtRefreshInterceptor = axios.create({
+    baseURL:`${apiURL}`
+})
 jwtRefreshInterceptor.interceptors.response.use((response) =>{
     return response
 }, async(error)=>{
     if(error.response.status === 401){
         await axios
-        .get("https://ballot-api.onrender.com/accounts/auth/refresh/",
+        .get(`/accounts/auth/refresh/`,
         {
             withCredentials:true
         })
