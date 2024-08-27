@@ -14,11 +14,12 @@ interface LoginPayloadtype {
   password:string
 }
 
+
 export function LoginPage({navigation}:any){
   const [passowrdIcon, setPassowrdIcon] =useState(false)
   const [showPassword,setShowPassword] = useState(false)
   const [loading,setLoading] = useState(false)
-  const [valid, setValid] = useState<any>(null)
+  const [valid, setValid] = useState<any>(true)
 
   const{loginApiConnect} = useContext(AuthContext)
   
@@ -32,7 +33,9 @@ export function LoginPage({navigation}:any){
   }
 
   const login = async (details:LoginPayloadtype )=>{
+    setValid(true)
     setLoading(true)
+    console.log("woking")
     if(details.email === "" || details.password === "" ){
       setLoading(false)
       Alert.alert("Error","fields can't be empty");
@@ -40,7 +43,9 @@ export function LoginPage({navigation}:any){
     }else{
       if(valid === true){
           try {
-              await loginApiConnect(details);
+            console.log("payload:",details)
+              loginApiConnect(details);
+              setLoading(false);
               navigation.navigate('Home');
           } catch (error: any | undefined) {
               setLoading(false)

@@ -2,26 +2,26 @@ import React from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity,ImageSourcePropType } from 'react-native';
 import Icon from 'react-native-vector-icons/Feather';
 import { fontStyles } from '../styles/fontstyle';
+import { Tabs } from '../interfaces/interfaces';
 
-interface TweetProps {
-  avatar: ImageSourcePropType;
-  username: string;
-  handle:string;
-  content: string;
-  likes: number;
-  retweets: number;
-  comments: number;
+interface TabProps {
+  data?:Tabs;
+  likes?: number;
+  retweets?: number;
+  comments?: number;
 }
 
-const Ballot: React.FC<TweetProps> = ({ avatar,  handle, username, content, likes, retweets, comments }) => {
-  return (
+const Tab: React.FC<TabProps> = ({data, likes, comments, retweets}) => {
+
+
+    return (
     <View style={styles.container}>
       <View style={styles.subContainer}>
         <View style={styles.headerContainer}>
-        <Image source={avatar} style={styles.avatar} />
+        <Image source={{ uri: data?.creator?.avatar }} style={styles.avatar} />
         <View>
-           <Text style={styles.username}>{username}</Text>
-           <Text style={styles.handle}>{handle}</Text>
+           <Text style={styles.username}>{data?.creator?.username}</Text>
+           <Text style={styles.handle}>{data?.creator?.handle}</Text>
         </View>     
       </View>
       <View style={styles.contentContainer} >
@@ -42,7 +42,42 @@ const Ballot: React.FC<TweetProps> = ({ avatar,  handle, username, content, like
           </View>       
         </View>     
           <View style={styles.contentsubcontainer}>
-            <Text style={styles.content}>{content}</Text>  
+            <Text style={styles.content}>{data?.text_content}</Text>  
+            <View style={styles.imageContainer}>
+            {data?.images && data.images.length > 0 && (
+              <View style={styles.imageContainer}>
+                <TouchableOpacity 
+                  style={styles.imageWrapper}
+                  onPress={() => {/* Handle first image click */}}
+                >
+                {data.images[0].image  &&(
+                <Image
+                  source={{ uri: data.images[0].image }}
+                  style={styles.image}
+                />
+              )}
+                 </TouchableOpacity>
+                              
+                {data.images.length > 1 && (
+                  <TouchableOpacity 
+                    style={styles.imageWrapper}
+                    onPress={() => {/* Handle second image click */}}
+                  > 
+                {data.images[1].image && (
+                  <>
+                    <Image source={{ uri: data.images[1].image }} style={styles.image} />
+                    {data.images.length > 2 && (
+                      <View style={styles.remainingOverlay}>
+                        <Text style={styles.remainingText}>+{data.images.length - 2}</Text>
+                      </View>
+                    )}
+                  </>
+                )}
+                  </TouchableOpacity>
+              )}
+            </View>
+          )}
+              </View>
           <TouchableOpacity style={styles.commentButton}>
           <Text style={styles.commentText}>Comment</Text>
         </TouchableOpacity>
@@ -107,6 +142,33 @@ const styles = StyleSheet.create({
   contentsubcontainer:{
     position: 'relative',
     width: '80%',
+  },
+  imageContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginVertical: 10,
+  },
+  imageWrapper: {
+    width: '49%',
+    aspectRatio: 16 / 9,
+    borderRadius: 10,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+  },
+  remainingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  remainingText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
   commentButton:{
     alignItems:'stretch',
@@ -186,4 +248,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Ballot;
+export default Tab;

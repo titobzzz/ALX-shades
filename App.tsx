@@ -7,8 +7,8 @@ import {NavigationContainer} from '@react-navigation/native';
 //pages
 import { LoginPage } from './src/pages/login';
 import { RegisterPage } from './src/pages/register';
-import {HomePage} from './src/pages/Home'
-import {CreatePostPage} from './src/pages/createpost'
+import {HomePage} from './src/pages/home'
+import {CreatePostPage} from './src/pages/createTab'
 // import {VideoCameraScreen} from './src/pages/videoscreen'
 
 //utils
@@ -39,10 +39,10 @@ export default function App() {
       <StatusBar barStyle="light-content" />
       <NavigationContainer>
         <Stack.Navigator initialRouteName='Login'>        
+          {/* <Stack.Screen name="Login" options={{headerShown:false}} component={LoginPage} /> */}
+        {/* <Stack.Screen name="Register" options={{headerShown:false}} component={RegisterPage} /> */}
             <Stack.Screen  name="Home" options={{headerShown:false}} component={HomePage} />
-            {/* <Stack.Screen name="Login" options={{headerShown:false}} component={LoginPage} />
-        <Stack.Screen name="Register" options={{headerShown:false}} component={RegisterPage} /> */}
-            <Stack.Screen  name="CreatePost" options={{headerShown:false}} component={CreatePostPage} />
+            <Stack.Screen  name="CreateTab" options={{headerShown:false}} component={CreatePostPage} />
             {/* <Stack.Screen name="VideoCamera" component={VideoCameraScreen} /> */}
       </Stack.Navigator>
   </NavigationContainer>

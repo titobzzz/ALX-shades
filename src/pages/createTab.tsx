@@ -1,27 +1,26 @@
-import React from "react"
-import { View, Text,TextInput, Image, StyleSheet, TouchableOpacity, ImageBackground } from "react-native"
-import {fontStyles } from "../styles/fontstyle"
-import {input} from "../styles/inputstyle"
-import lock from "../../assets/images/unlock.png"
+import React, { useState } from "react"
 import { Dimensions } from 'react-native';
-import { useState } from "react";
-import * as FileSystem from 'expo-file-system'
+import { View, Text,TextInput, Image, StyleSheet, TouchableOpacity, ImageBackground } from "react-native"
+
+//styles
 import { fontStyles as font } from "../styles/fontstyle"
 
-
+//file and images
+import * as FileSystem from 'expo-file-system'
 import * as ImagePicker   from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
-
+import { createNewTab } from "../utils/createTabsFunc";
 
 
 const screenHeight = Dimensions.get('window').height;
 
 export function CreatePostPage({navigation}:any){
 
-    const [imageArray, setImageArray] = useState<any| undefined>([]) 
-    const [mode, setMode] = useState<string>('')
-    const [selectedImageIndex, setSelectedImageIndex] = useState<number | null>(null);
+    const [mediaArray, setMediaArray] = useState<any| undefined>([]) 
+    const [textContent, setTextContent] = useState("");
+    const [tagIds, setTagIds] = useState<string[]>([]);
 
+    //uploading images and videos from anywhere
     const uploadImage = async (mode: string) => {
       let result: any;
       try {
@@ -46,9 +45,7 @@ export function CreatePostPage({navigation}:any){
                     allowsEditing: true,
                     quality: 1,
                 });
-
-          }
-  
+               }  
           if (!result.canceled && result.assets) {
               const newMedia = await Promise.all(
                   result.assets.map(async (element: any) => {
@@ -60,19 +57,20 @@ export function CreatePostPage({navigation}:any){
                       } else {
                           return { uri }; 
                       }
-                  })
-              );
-  
-              if (imageArray.length + newMedia.length <= 4) {
-                  setImageArray((prevImageArray: any) => [...prevImageArray, ...newMedia]);
-              } else {
-                  throw Error("Only four media are allowed");
-              }
+                  }));
+              
+                if (mediaArray.length + newMedia.length <= 4) {
+                    setMediaArray((prevImageArray: any) => [...prevImageArray, ...newMedia]);
+                } else {
+                    throw Error("Only four media are allowed");
+                }
           }
       } catch (error: any) {
           alert("Error uploading media: " + error.message);
       }
       };
+
+      //handle images to editon
 
       const handleImagePress = async (index: number, imageUrl: string) => {
         try {
@@ -90,7 +88,7 @@ export function CreatePostPage({navigation}:any){
       
           if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
             const editedImage = { uri: pickerResult.assets[0].uri };
-            setImageArray((prevImages: any[]) =>
+            setMediaArray((prevImages: any[]) =>
               prevImages.map((img, imgIndex) => (imgIndex === index ? editedImage : img))
             );
           }
@@ -98,10 +96,38 @@ export function CreatePostPage({navigation}:any){
           console.log('Error editing image:', error);
         }
       };
+
       //to delete the pictures 
       const deleteImage = (index: number) => {
-        const newImages = imageArray.filter((_:any, imgIndex:number) => imgIndex !== index);
-        setImageArray(newImages);
+        const newImages = mediaArray.filter((_:any, imgIndex:number) => imgIndex !== index);
+        setMediaArray(newImages);
+      };
+
+
+
+      //handle tab creation
+    const handlePostTab = async () => {
+            
+          // Extract hashtags using regex
+          try {
+            const tags = textContent.match(/#[\w]+/g);
+            setTagIds(tags || []);
+            
+            const images = mediaArray.filter((item: any) => {
+              const extension = item.uri.split('.').pop()?.toLowerCase();
+              return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
+            });
+            
+            const videos = mediaArray.filter((item: any) => {
+              const extension = item.uri.split('.').pop()?.toLowerCase();
+              return ['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(extension || '');
+            });
+        
+            const newTab = await createNewTab(textContent, tagIds, images, videos);
+            navigation.navigate('Home');
+          } catch (error) {
+            console.error('Failed to handle post tab:', error);
+          }
       };
 
   return(
@@ -117,6 +143,11 @@ export function CreatePostPage({navigation}:any){
                     placeholder="What's happening?"
                     multiline={true}
                     numberOfLines={4}
+                    value={textContent}
+                    onChangeText={(text)=>{
+                      setTextContent(text)                    
+                      }
+                    }    
                 />
                     <View 
                     style={{
@@ -131,7 +162,7 @@ export function CreatePostPage({navigation}:any){
                        flexWrap: 'wrap'
                     }}
                     > 
-              {imageArray.map((image:any, index:number) =>
+              {mediaArray.map((image:any, index:number) =>
                 {
                   
                     return (
@@ -189,7 +220,7 @@ export function CreatePostPage({navigation}:any){
     </View>
 
     
-    <TouchableOpacity style={styles.publish} >
+    <TouchableOpacity onPress={handlePostTab} style={styles.publish} >
                  <Image   style={{width: 40, height: 40}}  source={require('../../assets/images/publish.png')} />
     </TouchableOpacity>
             

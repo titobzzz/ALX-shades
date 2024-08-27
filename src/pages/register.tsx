@@ -9,6 +9,9 @@ import { useState ,useContext,  useRef} from "react"
 import axios from 'axios';
 import AuthContext from "../utils/authContext"
 import Loader from "../component/loader"
+import { apiURL } from "../utils/authContext";
+
+
 
 
 export function RegisterPage({navigation}:any){
@@ -47,7 +50,10 @@ export function RegisterPage({navigation}:any){
       setLoading(true)
 
       try {
-                const response = await axios.post("https://ballot-api.onrender.com/accounts/", payload);
+        console.log('apiurl',apiURL)
+        const response = await axios.post(`${apiURL}/accounts/`, payload);               
+      console.log('payload:',payload)
+
         // Check for a successful response
         if (response.status === 200 || response.status === 201) {
           setMessage("Your account has been created successfully");
@@ -70,6 +76,7 @@ export function RegisterPage({navigation}:any){
           console.error("Unexpected response status:", response.status);
         }
       } catch (error:any) {
+        // console.log('error:',{...error})
         setLoading(false)
         let errorMessage = "An error occurred during registration";
 
