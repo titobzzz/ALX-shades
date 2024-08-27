@@ -15,26 +15,21 @@ export interface HashTags {
     bio: string | null;
   }
   
-  
-  export interface TabImage {
-    id: number;
-    image: string | null; 
+  export interface TabMedia {
+    id: string;
+    tab: string;
+    media_type: 'image' | 'video';
+    file: string;
+    duration?: number;
   }
   
-  export interface TabVideo {
-    id: number;
-    video: string | null;
-  }
-  
-
   export interface Tabs {
-    id?: string;
-    tag?: HashTags[];
-    creator?: User;
-    text_content?: string | null;
-    created?: string;
-    updated?: string;
-    images?: TabImage[];
-    videos?: TabVideo[];
+    id: string;
+    tag: string[];
+    creator: User;
+    text_content?: string;
+    created: string;
+    updated: string;
+    media: TabMedia[];
   }
   

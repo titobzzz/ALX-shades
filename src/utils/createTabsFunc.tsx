@@ -1,36 +1,36 @@
 import axios from 'axios';
-import FormData from 'form-data';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { axiosPostInterceptor } from './axiosInterceptor';
 
-interface TabImage {
+interface TabMedia {
   uri: string;
-  type: string; 
+  media_type: string; 
   name: string; 
 }
 
-interface TabVideo {
-  uri: string;
-  type: string; 
-  name: string;
-}
 export const createNewTab = async (
   textContent: string,
   tagIds: string[] = [],
-  images: TabImage[] = [],
-  videos: TabVideo[] = []
+  media: TabMedia[] = []
 ) => {
-  // Prepare the payload as JSON
-  const payload = {
-    text_content: textContent,
-    tag: tagIds,
-    images: images.map(img => ({ image: img.uri })),
-    videos: videos.map(vid => ({ video: vid.uri })),
+  const formData = new FormData();
+  formData.append('text_content', textContent);
+  formData.append('tags', JSON.stringify(tagIds));
+
+  const uriToBlob = async (uri: string) => {
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    return blob;
   };
 
-  console.log('Sending payload:', payload);
-
   try {
-    const response = await axiosPostInterceptor('/home/tabs/', payload);
+    for (const [index, item] of media.entries()) {
+      const blob = await uriToBlob(item.uri); 
+      formData.append(`media_${index}`, blob, item.name); 
+    }
+
+    const response = await axiosPostInterceptor('/home/tabs/', formData);
+
     if (!response || !response.data) {
       throw new Error('No data received from server');
     }

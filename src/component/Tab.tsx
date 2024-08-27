@@ -12,7 +12,7 @@ interface TabProps {
 }
 
 const Tab: React.FC<TabProps> = ({data, likes, comments, retweets}) => {
-
+console.log("data",data)
 
     return (
     <View style={styles.container}>
@@ -20,8 +20,10 @@ const Tab: React.FC<TabProps> = ({data, likes, comments, retweets}) => {
         <View style={styles.headerContainer}>
         <Image source={{ uri: data?.creator?.avatar }} style={styles.avatar} />
         <View>
-           <Text style={styles.username}>{data?.creator?.username}</Text>
-           <Text style={styles.handle}>{data?.creator?.handle}</Text>
+           <Text style={styles.username}> {data?.creator?.username ? data.creator.handle : 'Anonymous'}</Text>
+           <Text style={styles.handle}>
+  {data?.creator?.handle ? data.creator.handle : '@anonymous'}
+  </Text>
         </View>     
       </View>
       <View style={styles.contentContainer} >
@@ -31,11 +33,11 @@ const Tab: React.FC<TabProps> = ({data, likes, comments, retweets}) => {
               <View style={styles.pseudo1cover}></View>         
         <TouchableOpacity style={styles.actionButton}>
           <Icon name="repeat" size={20} color="white" />
-          <Text style={styles.actionText}>{retweets}</Text>
+          <Text style={styles.actionText}></Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.actionButton}>
           <Icon name="heart" size={20} color="white" />
-          <Text style={styles.actionText}>{likes}</Text>
+          <Text style={styles.actionText}></Text>
         </TouchableOpacity>
         <View style={styles.pseudo2}></View>
         <View style={styles.pseudo2cover}></View>    
@@ -44,31 +46,31 @@ const Tab: React.FC<TabProps> = ({data, likes, comments, retweets}) => {
           <View style={styles.contentsubcontainer}>
             <Text style={styles.content}>{data?.text_content}</Text>  
             <View style={styles.imageContainer}>
-            {data?.images && data.images.length > 0 && (
+            {data?.media && data.media.length > 0 && (
               <View style={styles.imageContainer}>
                 <TouchableOpacity 
                   style={styles.imageWrapper}
                   onPress={() => {/* Handle first image click */}}
                 >
-                {data.images[0].image  &&(
+                {data.media[0]  &&(
                 <Image
-                  source={{ uri: data.images[0].image }}
+                  source={{ uri: data.media[0].file }}
                   style={styles.image}
                 />
               )}
                  </TouchableOpacity>
                               
-                {data.images.length > 1 && (
+                {data.media.length > 1 && (
                   <TouchableOpacity 
                     style={styles.imageWrapper}
                     onPress={() => {/* Handle second image click */}}
                   > 
-                {data.images[1].image && (
+                {data.media[1].file && (
                   <>
-                    <Image source={{ uri: data.images[1].image }} style={styles.image} />
-                    {data.images.length > 2 && (
+                    <Image source={{ uri: data.media[1].file }} style={styles.image} />
+                    {data.media.length > 2 && (
                       <View style={styles.remainingOverlay}>
-                        <Text style={styles.remainingText}>+{data.images.length - 2}</Text>
+                        <Text style={styles.remainingText}>+{data.media.length - 2}</Text>
                       </View>
                     )}
                   </>
@@ -149,9 +151,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   imageWrapper: {
-    width: '49%',
-    aspectRatio: 16 / 9,
-    borderRadius: 10,
+    width: '60%',
+    aspectRatio: 12/ 9,
+    borderRadius: 5,
     overflow: 'hidden',
   },
   image: {

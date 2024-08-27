@@ -39,8 +39,8 @@ export default function App() {
       <StatusBar barStyle="light-content" />
       <NavigationContainer>
         <Stack.Navigator initialRouteName='Login'>        
-          {/* <Stack.Screen name="Login" options={{headerShown:false}} component={LoginPage} /> */}
-        {/* <Stack.Screen name="Register" options={{headerShown:false}} component={RegisterPage} /> */}
+          <Stack.Screen name="Login" options={{headerShown:false}} component={LoginPage} />
+                  <Stack.Screen name="Register" options={{headerShown:false}} component={RegisterPage} />
             <Stack.Screen  name="Home" options={{headerShown:false}} component={HomePage} />
             <Stack.Screen  name="CreateTab" options={{headerShown:false}} component={CreatePostPage} />
             {/* <Stack.Screen name="VideoCamera" component={VideoCameraScreen} /> */}

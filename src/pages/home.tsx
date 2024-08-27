@@ -24,10 +24,9 @@ export function HomePage(){
     useEffect(() => {
       const fetchData = async () => {
         try {
-          setLoading(true);
-          
+          setLoading(true);          
           const response = await axiosGetInterceptor('/home/tabs/');          
-          settabs(response.data);
+          settabs(response?.data);
         } catch (err:any) {
           // Handle error
           setError(err.message || 'An error occurred');

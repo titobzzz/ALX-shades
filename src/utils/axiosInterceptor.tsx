@@ -2,31 +2,37 @@ import jwtRefreshInterceptor from "./responseinterceptor";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 
-export const axiosPostInterceptor =  async( URL:any, postData:any) => {
-    // This will handle all post requests 
+export const axiosPostInterceptor = async (URL: string, postData: any,  customConfig: any = {}) => {
     try {
-        const accessToken = await AsyncStorage.getItem('access_token') 
-        if (accessToken === null) {
+        const accessToken = await AsyncStorage.getItem('access_token');
+        if (!accessToken) {
             console.error('Access token is null or undefined');
-            return null;
-          }
-          const token = accessToken.replace(/^"|"$/g, '');
+            throw new Error('Access token is missing');
+        }
+        const token = accessToken.replace(/^"|"$/g, '');
 
-        const response = await jwtRefreshInterceptor.post(URL, postData, {
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'multipart/form-data',
-            },
-        });
+        const headers = {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+            ...customConfig.headers
+        };
+
+        const config = {
+            ...customConfig,
+            headers
+        };
+
+        const response = await jwtRefreshInterceptor.post(URL, postData, config);
         return response;
+    } catch (error: any) {
+        console.error('Error in POST request:', {
+            message: error.message,
+            status: error.response?.status,
+            data: error.response?.data,
+        });
+        throw error; 
     }
-   catch (error:any) {
-    console.error('Error in POST request:', {
-        message: error.message,
-    });
-    throw error;
-  }
-}
+};
 
 export const axiosPutInterceptor =  async( URL:any, postData:any) => {
     // This will handle all put requrst  

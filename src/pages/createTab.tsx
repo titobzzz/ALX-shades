@@ -46,31 +46,55 @@ export function CreatePostPage({navigation}:any){
                     quality: 1,
                 });
                }  
-          if (!result.canceled && result.assets) {
-              const newMedia = await Promise.all(
+               if (!result.canceled && result.assets && result.assets.length > 0) {
+                const supportedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'mov', 'avi', 'mp4', 'webm', 'mkv'];
+                const newMedia = await Promise.all(
                   result.assets.map(async (element: any) => {
-                      const uri = element.uri;
-  
-                      if (uri.startsWith('content://')) {
-                          const fileInfo = await FileSystem.getInfoAsync(uri);
-                          return { uri: fileInfo.uri }; 
-                      } else {
-                          return { uri }; 
+                    const uri = element.uri;
+                    const fileExtension = uri.split('.').pop()?.toLowerCase();
+                    let mediaType = 'unknown';
+          
+                    if (fileExtension && supportedExtensions.includes(fileExtension)) {
+                      if (['jpg', 'jpeg', 'png', 'gif'].includes(fileExtension)) {
+                        mediaType = 'image';
+                      } else if (['mov', 'avi', 'mp4', 'webm', 'mkv'].includes(fileExtension)) {
+                        mediaType = 'video';
                       }
-                  }));
-              
+                    }
+          
+                    const media = {
+                      uri,
+                      type: mediaType,
+                      width: element.width,
+                      height: element.height,
+                      duration: element.duration || 0, // Optional, for videos
+                      fileSize: element.fileSize || null,
+                    };
+          
+                    if (media.uri.startsWith('content://')) {
+                      const fileInfo = await FileSystem.getInfoAsync(media.uri);
+                      media.uri = fileInfo.uri;
+                    }          
+                    console.log(media)
+                    return media;
+                  })
+                );
+          
                 if (mediaArray.length + newMedia.length <= 4) {
-                    setMediaArray((prevImageArray: any) => [...prevImageArray, ...newMedia]);
+                  setMediaArray((prevMediaArray: any) => [...prevMediaArray, ...newMedia]);
                 } else {
-                    throw Error("Only four media are allowed");
+                  throw Error('Only four media are allowed');
                 }
-          }
-      } catch (error: any) {
-          alert("Error uploading media: " + error.message);
-      }
-      };
-
-      //handle images to editon
+             
+              } else {
+                throw Error('No media selected');
+              }
+            
+            } catch (error: any) {
+              alert('Error uploading media: ' + error.message);
+            }
+          };
+      
 
       const handleImagePress = async (index: number, imageUrl: string) => {
         try {
@@ -87,9 +111,14 @@ export function CreatePostPage({navigation}:any){
           });
       
           if (!pickerResult.canceled && pickerResult.assets && pickerResult.assets.length > 0) {
-            const editedImage = { uri: pickerResult.assets[0].uri };
-            setMediaArray((prevImages: any[]) =>
-              prevImages.map((img, imgIndex) => (imgIndex === index ? editedImage : img))
+            const editedMedia = {
+              uri: pickerResult.assets[0].uri,
+              type: 'image',
+              width: pickerResult.assets[0].width,
+              height: pickerResult.assets[0].height,
+            };      
+            setMediaArray((prevMediaArray: any[]) =>
+              prevMediaArray.map((media, mediaIndex) => (mediaIndex === index ? editedMedia : media))
             );
           }
         } catch (error) {
@@ -106,28 +135,38 @@ export function CreatePostPage({navigation}:any){
 
 
       //handle tab creation
-    const handlePostTab = async () => {
-            
-          // Extract hashtags using regex
-          try {
-            const tags = textContent.match(/#[\w]+/g);
-            setTagIds(tags || []);
-            
-            const images = mediaArray.filter((item: any) => {
-              const extension = item.uri.split('.').pop()?.toLowerCase();
-              return ['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '');
-            });
-            
-            const videos = mediaArray.filter((item: any) => {
-              const extension = item.uri.split('.').pop()?.toLowerCase();
-              return ['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(extension || '');
-            });
-        
-            const newTab = await createNewTab(textContent, tagIds, images, videos);
-            navigation.navigate('Home');
-          } catch (error) {
-            console.error('Failed to handle post tab:', error);
+      const handlePostTab = async () => {
+        // Extract hashtags using regex
+        const tags = textContent.match(/#[\w]+/g);
+        setTagIds(tags || []);
+      
+        // Prepare media array with uri and media_type
+        const media = mediaArray.map((item:any) => {
+          const extension = item.uri.split('.').pop()?.toLowerCase();
+          let mediaType = 'unknown';
+      
+          if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(extension || '')) {
+            mediaType = 'image';
+          } else if (['mp4', 'mov', 'avi', 'webm', 'mkv'].includes(extension || '')) {
+            mediaType = 'video';
           }
+      
+          return {
+            uri: item.uri,
+            media_type: mediaType,
+            name: `media_${item.uri.split('/').pop()}` // Generate a name based on URI
+          };
+        });
+      
+        console.log({ tags, media, textContent });
+      
+        try {
+          const newTab = await createNewTab(textContent, tagIds, media);
+          navigation.navigate('Home');
+        } catch (error) {
+          console.error('Failed to handle post tab:', error);
+          alert("Failed to create the tab, please try again.");
+        }
       };
 
   return(
@@ -162,10 +201,7 @@ export function CreatePostPage({navigation}:any){
                        flexWrap: 'wrap'
                     }}
                     > 
-              {mediaArray.map((image:any, index:number) =>
-                {
-                  
-                    return (
+              {mediaArray.map((image:any, index:number) => (
                       <View key={index} style={{ position: 'relative'}}>
                         <TouchableOpacity 
                         onPress={() => handleImagePress(index, image.uri)}> 
@@ -193,7 +229,7 @@ export function CreatePostPage({navigation}:any){
                         </View>
                         
                     )
-                })
+                )
             }
         </View>
  
